@@ -1,0 +1,18 @@
+[
+  {
+    "E_NAME": "Rahul",
+    "E_SALARY": 20000,
+    "E_ID": 101
+  },
+  {
+    "E_NAME": "Ramesh",
+    "E_SALARY": 30000,
+    "E_ID": 102
+  },
+  {
+    "E_NAME": "Suresh",
+    "E_SALARY": 40000,
+    "E_ID": 103
+  }
+]
+    

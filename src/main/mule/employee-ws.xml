@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="be7b5129-2217-4fed-913e-0284c877d517" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="b3d91ecc-7f55-44ae-8d39-9eee3ccaea09" >
+		<db:my-sql-connection host="remotemysql.com" port="3306" user="6FpqHtL1Yc" password="c3K3bswR7J" database="6FpqHtL1Yc" />
+	</db:config>
+	<flow name="getEmployeeFlow" doc:id="53cf0abf-e267-4c2f-bf95-0d6bd3ef1f6b" >
+		<http:listener doc:name="Listener" doc:id="d68b2985-49c2-4144-a9ef-83e762ba561e" config-ref="HTTP_Listener_config" path="/getemp" allowedMethods="GET"/>
+		<db:select doc:name="Select" doc:id="f187bda9-0d21-4c77-94bb-2fe120b42269" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from Employee]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="ce0bc3df-27fd-4951-9239-1feafc939e9d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0c82314a-9498-402e-95e8-a78f39fd7d51" />
+	</flow>
+	<flow name="PostFlow" doc:id="dd6b5622-bc7d-4009-8e18-2963367e5fbd" >
+		<http:listener doc:name="Listener" doc:id="edebf220-c4d6-4eb9-ac49-eb707cd6180d" config-ref="HTTP_Listener_config" path="/postemp" allowedMethods="POST"/>
+		<db:select doc:name="Select" doc:id="f4b0627f-cded-4ba4-8929-a2189bae79af" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO Employee(`E_ID`, `E_NAME`, `E_SALARY`) VALUES (:ID,:NAME,:SALARY)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	ID: payload.E_ID,
+	NAME: payload.E_NAME,
+	SALARY:payload.E_SALARY,
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="34201bdd-07bd-40af-8139-564b52b2be5c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="POST FLOW" doc:name="Set Payload" doc:id="431939da-02ae-4f1d-86f5-a6c35bffab8c" />
+		<logger level="INFO" doc:name="Logger" doc:id="28619255-145a-42f9-a36b-c6c8561c01bb" />
+	</flow>
+</mule>
